@@ -1,0 +1,324 @@
+# image processing lib.
+import cv2
+import numpy as np
+# motor control lib.
+import time
+import Adafruit_PCA9685
+# switching lib.
+from time import sleep
+import RPi.GPIO as GPIO
+
+# from picamera import PiCamera
+
+pwm = Adafruit_PCA9685.PCA9685()
+pwm.set_pwm_freq(50)  # freq of the motors 50/60 Hz
+
+# power switching on/off
+servoPIN = 17
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(servoPIN, GPIO.OUT)  # high/low of gpio
+GPIO.output(servoPIN,GPIO.HIGH)
+
+def motor_fr(p):  # ileri/geri motorlar
+    pwm.set_pwm(4, 0, p)
+    pwm.set_pwm(5, 0, p)
+    pwm.set_pwm(6, 0, p)
+    pwm.set_pwm(7, 0, p)
+
+
+def motor_ud(p):  # yukarı/aşağı motorlar
+    pwm.set_pwm(0, 0, p)
+    pwm.set_pwm(1, 0, p)
+    pwm.set_pwm(2, 0, p)
+    pwm.set_pwm(3, 0, p)
+
+
+def motor_r_yengec(p):  # sağ/sol motorlar
+    #################################
+    fark = p - 311
+    pwm2 = 311 - fark
+    pwm.set_pwm(4, 0, pwm2)
+    pwm.set_pwm(5, 0, p)
+    pwm.set_pwm(6, 0, pwm2)
+    pwm.set_pwm(7, 0, p)
+
+def motor_l_yengec(p):  # sağ/sol motorlar
+    #################################
+    fark = p - 311
+    pwm2 = 311 - fark
+    pwm.set_pwm(4, 0, p)
+    pwm.set_pwm(5, 0, pwm2)
+    pwm.set_pwm(6, 0, p)
+    pwm.set_pwm(7, 0, pwm2)
+
+def motor_r_donus(p):
+    fark = p - 311
+    pwm2 = 311 - fark
+    pwm.set_pwm(4, 0, pwm2)
+    #pwm.set_pwm(5, 0, pwm)
+    #pwm.set_pwm(6, 0, fark)
+    pwm.set_pwm(7, 0, p)
+
+def motor_l_donus(p):
+    fark = p - 311
+    pwm2 = 311 - fark
+    pwm.set_pwm(4, 0, p)
+    # pwm.set_pwm(5, 0, pwm)
+    # pwm.set_pwm(6, 0, fark)
+    pwm.set_pwm(7, 0, pwm2)
+
+def motor_stp():  # motorları durdur
+    pwm.set_pwm(0, 0, 311)  # sağ ön dikey
+    pwm.set_pwm(1, 0, 311)  # sol ön dikey
+    pwm.set_pwm(2, 0, 311)  # sağ arka dikey
+    pwm.set_pwm(3, 0, 311)  # sol arka dikey
+    pwm.set_pwm(4, 0, 311)  # sağ ön itici
+    pwm.set_pwm(5, 0, 311)  # sol ön itici
+    pwm.set_pwm(6, 0, 310)  # sağ arka itici
+    pwm.set_pwm(7, 0, 311)  # sol arka itici
+    time.sleep(1)
+
+def control(center, circle):  # ekranın merkezi ile çemberin merkezini kıyaslama
+    x = center[0] - circle[0]
+    y = center[1] - circle[1]
+    return x, y
+
+def konumlama(center, circle):
+    dif = control(center, circle)  # x, y
+    r_pwm = 375  # aracın sağa gidiş pwm i
+    r_t = 5  # aracın sağa gidiş süresi
+    u_pwm = 375  # aracın yukarı çıkış pwm i
+    u_t = 2  # aracın yukarı çıkış süresi
+    l_pwm = 375  # aracın sola gidiş pwm i
+    l_t = 5 # aracın sola gidiş süresi
+    d_pwm = 375  # aracın aşağı gidiş pwm i
+    d_t = 2  # aracın aşağı gidiş süresi
+
+    if dif[0] <= 0 and dif[1] > 0:  # 1. region
+        print("Hedef 1. bolgede")
+        # araç t sn sağa gidecek
+        print("saga gidiliyor...")
+        motor_r_yengec(r_pwm)
+        time.sleep(r_t)
+        motor_stp()
+        # araç t sn yukarı gidecek
+        print("yukarı gidiliyor...")
+        motor_ud(u_pwm)
+        time.sleep(u_t)
+        motor_stp()
+
+
+    elif dif[0] > 0 and dif[1] > 0:  # 2. region
+        print("Hedef 2. bolgede")
+        # araç t sn sola gidecek
+        print("sola gidiliyor...")
+        motor_l_yengec(l_pwm)
+        time.sleep(l_t)
+        motor_stp()
+        # araç t sn yukarı gidecek
+        print("yukarı gidiliyor...")
+        motor_ud(u_pwm)
+        time.sleep(u_t)
+        motor_stp()
+
+    elif dif[0] >= 0 and dif[1] <= 0:  # 3. region
+        print("Hedef 3. bolgede")
+        # araç t sn sola gidecek
+        print("sola gidiliyor...")
+        motor_l_yengec(l_pwm)
+        time.sleep(l_t)
+        motor_stp()
+        # araç t sn aşağı gidecek
+        print("asagı gidiliyor...")
+        motor_ud(d_pwm)
+        time.sleep(d_t)
+        motor_stp()
+
+    elif dif[0] < 0 and dif[1] <= 0:  # 4. region
+        print("Hedef 4. bolgede")
+        # araç t sn sağa gidecek
+        print("saga gidilecek...")
+        motor_r_yengec(r_pwm)
+        time.sleep(r_t)
+        motor_stp()
+        # araç t sn aşağı gidecek
+        print("asagı gidiliyor...")
+        motor_ud(d_pwm)
+        time.sleep(d_t)
+        motor_stp()
+
+    else:
+        print("Osman, problemimiz var!")
+
+
+def gudumleme(yari_cap, thr):  # ekrandaki çemberin yarı çapını al, threshold değer ile karşılaştır, duruma göre güdümle
+    print("gudumleme fonksiyonuna girildi!")
+    thr_f = thr * 0,60  # karşılaştırma için threshold değeri
+    f_pwm = 375  # motorun ileri gitmesi için verilecek olan pwm değeri
+    # ileri -> <320-375>
+    # geri -> <300-245>
+    v_pwm = 375  # aracın su üstüne çıkışı için verilecek olan pwm değeri
+    v_t = 2  # motorların yukarı çıkış süresi
+    f_t = 5  # motorların ileri çalışma süresi
+    f_t2 = 375  # motorların çemberi geçerken çalışma süresi
+
+    if int(yari_cap) < thr_f:  # biraz ilerlemeye ihtiyacın var
+        motor_fr(f_pwm)
+        time.sleep(f_t)
+        motor_stp()
+        print("ilerliyor...")
+
+    #elif yari_cap >= thr_f:  # yeterince yakınsın, bas gaza
+    else:
+        motor_fr(f_pwm)
+        time.sleep(f_t2)
+        motor_stp()
+        motor_ud(v_pwm)
+        time.sleep(v_t)
+        motor_stp()
+        print("yeeyy, mişşın kompleytıt")
+        return None
+
+def arama_deneme(img):
+    print("arama deneme calisiyor")
+    motor_stp()
+    #3 (r_t) saniye ileri
+    motor_fr(340)
+    arama_time(img,3)
+    motor_stp()
+    #90 derece sağa dönüş
+    motor_r_donus(330)
+    arama_time(img,2)
+    motor_stp()
+
+    #1 saniye ileri
+    motor_fr(330)
+    arama_time(img,2)
+    motor_stp()
+
+    #90 derece sağa dönüş
+    motor_r_donus(330)
+    arama_time(img,2)
+    motor_stp()
+
+    #3 (r_t) saniye ileri
+    motor_fr(340)
+    arama_time(img,5)
+    motor_stp()
+
+    #90 derece sağa dönüş
+    motor_r_donus(330)
+    arama_time(img,2)
+    motor_stp()
+
+    #2 saniiye ileri
+    motor_fr(340)
+    arama_time(img,5)
+    motor_stp()
+
+    #90 derece sağa dönüş
+    motor_r_donus(330)
+    arama_time(img,2)
+    motor_stp()
+
+    #3 (r_t) saniye ileri
+    motor_fr(340)
+    arama_time(img,3)
+    motor_stp()
+
+    #bulamadı yukarı çık
+    motor_ud(330)
+    arama_time(img,2)
+    motor_stp()
+
+def FindCircle(img, min, max):
+    print("FindCirc calısıyor...")
+    
+    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    img_blur = cv2.medianBlur(img_gray, 7)
+    cv2.imshow("img", img)
+    kernal = np.ones((7, 7), "uint8")
+    img = cv2.dilate(img_blur, kernal)
+    cv2.imshow("filtered image", img)
+    circle = cv2.HoughCircles(img_gray, cv2.HOUGH_GRADIENT, 1, img.shape[0] / 60,
+                              param1=30, param2=20,
+                              minRadius=min, maxRadius=max)
+    if circle is None:
+        ######################## Arama Fonksiyonu############
+        #arama_deneme()
+        print("arama calısacak!!!!!!")
+        print("circle yok")
+        a = [0, 0, 0]
+        return None
+
+    elif circle is not None:
+        circle = np.uint16(np.around(circle))
+        # (contours, hierarchy) = cv2.findContours(img_gray, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        # for pic, contour in enumerate(contours):
+        # area = cv2.contourArea(contour)
+        i = circle[0, 0]
+        cv2.circle(img, (i[0], i[1]), i[2], (255, 0, 0), 2)  # tespit edilen çemberi çiz
+        cv2.circle(img, (i[0], i[1]), 2, (255, 0, 0), 10)  # tespit edilen çemberin ortasını çiz
+        circle = (i[0], i[1], i[2])  # x, y, r
+        circle = np.int0(circle)
+
+        print(circle)
+        cv2.imshow("detected", img)
+        return circle
+
+    else:
+        print("gecmis olsun")
+        return 0
+
+def arama_time(img,t):
+    for i in range(t):
+        time.sleep(1)
+        FindCircle(img,100,200)
+
+# motor initialization
+motor_stp()
+time.sleep(4)
+# pwm.set_pwm(channel_number, pwm_high_start, pwm_high_stop)
+
+cap = cv2.VideoCapture(0)
+#cap = cv2.resize(cap,(720,480))
+m = 1
+while True:
+    # Capture frame-by-frame
+    ret, frame = cap.read()
+    dimensions = frame.shape
+    height = frame.shape[0]
+    width = frame.shape[1]
+    center = (width / 2, height / 2)  # 360, 240
+    center = np.int0(center)
+    print("screen center = {}".format(center))
+    cv2.imwrite('/home/pi/Desktop/image%s.jpg' % m, frame)
+    m += 1
+    circle = FindCircle(frame, 100, 200)
+    if circle is None:
+        arama_deneme(frame)
+
+
+    elif center[0] in range(circle[0] - 50, circle[0] + 50) \
+            and center[1] in range(circle[1] - 50, circle[1] + 50):
+        #################### Güdümleme
+        print("Güdümleme")
+        gudumleme(circle[2],center[0])
+        break
+        # çember boyut sınırlama ve bitiş
+        # mission tamamlandı, yukarı çıkabilirsin
+    else:
+        ################### Konumlama
+        print("Konumlama")
+        # x ekseninde konumlan
+        konumlama(center,circle)
+        ###FindCircle(img, circle[2] - 5, circle[2] + 5)
+
+        # y ekseninde konumlan
+    if cv2.waitKey(50) & 0xFF == ord('q'):
+        break
+
+# When everything done, release the capture
+GPIO.output(servoPIN,GPIO.LOW)
+cap.release()
+cv2.destroyAllWindows()
