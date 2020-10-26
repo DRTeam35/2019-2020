@@ -1,0 +1,52 @@
+VNC Connection
+*
+ping raspberrypi.local -4 # find the IP
+*
+ssh pi@IP
+*
+yes # permission
+*
+raspberry # the password
+*
+vncserver :1 # channel
+*
+go to VNC viewer
+*
+IP:1 # connect
+----------------
+vnc server: https://www.raspberrypi.org/documentation/remote-access/vnc/
+----------------
+
+ssh
+
+vnc viewer
+
+TCP/IP
+ 
+----------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,31 @@
+windows/cmd.exe yönetici olarak çalıştır
+>ping raspberrypi.local -4 (ip gelcek)
+>ssh pi@ip (ssh ile raspberry bağlantısı yapılcak)
+>raspberry'de>vncserver :1 (vnc izni alıncak)
+>raspberry'de>ifconfig (raspberry ip öğren)
+ eth0'daki ip inet (raspberry ip)
+
+windows'a git/ağ bağlantılarım/ethernet/tcpip
+	otomatik ip yi kaldır, manuel e geç
+	ilgili raspberry ip'sini buraya gir
+	ip adresi: xxx.xxx.xxx.xxx(169.254.192.221)
+	alt ağ maskesi: 255.255.0.0
+
+--------------------------------------------------
+windows'a git/cmd.exe yönetici olarak çalıştır
+>ipconfig
+Ethernet adapter Ethernet/Autoconfiguration IPv4 Address (windows'un ip'si)
+Burdaki ip bizim host'umuz (169.254.226.61)
+Bu ip'yi hem raspberry içindeki kodda hem bilgisayardaki "server.py" adlı kodda
+"HOST" adındaki değişken yerine yazılması gerekiyor.
+--------------------------------------------------
+Pycharm ı ve VNC viewer ı çalıştırarak windows ve raspberry'de kodu kontrol et!
+VNC Viewer'a Raspberry ip'si yazılacak (169.254.192.221:1)
+--------------------------------------------------
+Raspberry içinde asıl kodumuzun bulunduğu konum: raspi2_dosya/Socket-master/Raspidengelen/client.py
+
+HER ŞEY TAMAMSA KODLARI ÇALIŞTIRABİLİRSİN
+
+ÖNCE WİNDOWS'TAKİ KOD ÇALIŞACAK
+"Client bekliyor" yazması lazım
+SONRA RASPBERRY'DEKİ KOD ÇALIŞACAK
