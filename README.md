@@ -7,8 +7,8 @@ DEU ROV TEAM
 This repository consists of two main folders. First one is containing the code and our researches from the 2019-2020 semester, and the second one is containing our code from the current state of the vehicle.
 ### TO BE MODIFIED
 
-# TO-DO List
 
+# TO-DO List
 ## General
 - [x] Classify the folders
 - [x] Upload the old files
