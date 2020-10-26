@@ -1,0 +1,28 @@
+note that these variables are not exact, so they'll probably change
+and it needs to calibrate itself by PID controller 
+
+ileri gitme 2 metre
+	340 pwm	10saniye
+ileri gitme 60 cm
+	340 pwm 2saniye
+
+aşağı hızlı iniyoruz, yukarı yavaş çıkıyoruz
+
+aşağı
+	280pwm	2sn
+yukarı
+	340pwm	3sn
+l yengec
+	330pwm	3sn
+r yengec
+	330pwm	3sn
+sol dönüş
+	330pwm	2sn	90 derece
+360 dönüş
+	330pwm	8sn	360 derece
+sağ dönüş
+	345pwm	1sn	90 derece
+
+#################
+
+r_yengec 330 2sn + l_yengec 330 1sn
